@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Little Question</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Patrick+Hand&family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: tender, playful, a little teasing — a private note, not a product.
+   IDEA: a tiny retro desktop window that pops up a question, then opens into a love letter.
+   PICTURE: a waving pixel-ish cat in the window; on the wish page, polaroid photos.
+   COLOUR and TYPE: orchid pink + cream + plum ink; Silkscreen for UI labels, Patrick Hand for hand-written lines, Be Vietnam Pro for Vietnamese text.
+   LAYOUT: one centered window; then a single scrolling letter: title, note, photos, videos, sign-off. */
+:root{color-scheme:light;--pink:#e57bd3;--pink-d:#b04aa0;--plum:#5b1e52;--cream:#fdf8f2;--ink:#2a1a26;--line:#231b22}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;min-height:100%}
+body{font:16px/1.6 "Be Vietnam Pro",system-ui,sans-serif;color:var(--ink);overflow-x:clip;
+  background:radial-gradient(circle at 85% 10%,#fcebd9 0,transparent 45%),linear-gradient(160deg,#f7e1ef,#f3e6f6 60%,#f8e3ee)}
+.hidden{display:none!important}
+
+/* ---------- screen 1: the question ---------- */
+#ask{min-height:100svh;display:grid;place-items:center;padding:24px 16px}
+.kicker{font:14px "Silkscreen",monospace;color:var(--pink-d);text-align:center;margin:0 0 18px;letter-spacing:.2em}
+.win{width:min(560px,100%);background:var(--cream);border:3px solid var(--line);border-radius:14px;
+  box-shadow:8px 8px 0 var(--pink);padding:10px 10px 28px}
+.bar{display:flex;align-items:center;gap:8px;background:var(--pink);border:3px solid var(--line);border-radius:8px;padding:8px 14px}
+.dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--line)}
+.bar b{margin-left:auto;font:13px "Silkscreen",monospace;color:#fff;letter-spacing:.06em}
+.cat{display:block;width:110px;height:auto;margin:28px auto 6px;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px) rotate(-2deg)}}
+.q{font:700 clamp(30px,6vw,40px)/1.25 "Comic Sans MS","Comic Sans","Patrick Hand",cursive;color:var(--plum);text-align:center;
+  text-shadow:2px 2px 0 #f3b8e6;margin:10px 20px 0;text-wrap:balance}
+#zone{position:relative;height:210px;margin:12px 16px 0;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap}
+.btn{font:15px "Silkscreen",monospace;cursor:pointer;border-radius:10px;min-height:44px;letter-spacing:.06em}
+.btn:focus-visible{outline:3px solid var(--plum);outline-offset:3px}
+#yes{--g:1;background:var(--pink);color:#fff;border:0;padding:16px 30px;font-size:18px;
+  box-shadow:0 7px 0 var(--pink-d),0 10px 30px #e57bd366;transform:scale(var(--g));transition:transform .35s cubic-bezier(.3,1.6,.5,1);z-index:2}
+#yes:active{box-shadow:0 2px 0 var(--pink-d);translate:0 5px}
+#no{--s:1;background:#fff;color:var(--pink-d);border:2px solid var(--pink);padding:10px 18px;white-space:nowrap}
+#no.free{position:absolute;margin:0;transform-origin:0 0;transform:scale(var(--s));transition:left .3s ease,top .3s ease,transform .3s ease,opacity .4s}
+#no.gone{opacity:0;transform:scale(0)}
+#hint{display:none}
+
+/* ---------- screen 2: the wish ---------- */
+#wish{min-height:100svh;padding:clamp(28px,5vw,64px) max(5vw,16px) 80px;
+  background:linear-gradient(170deg,#c9c3dd,#e7c6e3 45%,#fbe0ea);animation:fadein .8s ease}
+@keyframes fadein{from{opacity:0}}
+.wrap{max-width:900px;margin:0 auto}
+.emojis{font-size:clamp(26px,4.5vw,38px);text-align:center;line-height:1.5;letter-spacing:.06em}
+h1{font-weight:800;font-size:clamp(30px,5.5vw,50px);line-height:1.2;text-transform:uppercase;text-align:center;
+  color:#3b2b45;margin:12px 0;text-wrap:balance}
+.letter{background:#fffaf6ee;border-radius:18px;padding:clamp(20px,4vw,40px);margin:36px 0;box-shadow:0 20px 50px #5b1e5222;
+  font-size:17px;white-space:pre-line}
+.letter .hi{font:700 34px/1.2 "Comic Sans MS","Comic Sans","Patrick Hand",cursive;color:var(--pink-d);display:block;margin-bottom:8px}
+h2{font:700 38px/1.1 "Comic Sans MS","Comic Sans","Patrick Hand",cursive;color:var(--plum);text-align:center;margin:48px 0 20px}
+.photos{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:clamp(10px,1.6vw,20px);align-items:start;width:min(1180px,94vw);margin-left:50%;translate:-50% 0}
+.pol{grid-column:span 2}
+.pol:first-child{grid-column:2 / span 2}
+@media(max-width:600px){.photos{grid-template-columns:repeat(2,minmax(0,1fr))}.pol,.pol:first-child{grid-column:auto}}
+@media(max-width:600px){.pol{padding:8px 8px 4px}.pol p{font-size:20px}}
+.pol{background:#fff;padding:12px 12px 6px;border-radius:4px;box-shadow:0 12px 30px #5b1e5226;transform:rotate(var(--r));transition:transform .3s}
+.pol:hover{transform:rotate(0) scale(1.03)}
+.pol img,.ph{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;border-radius:2px}
+.ph{display:grid;place-items:center;background:repeating-linear-gradient(45deg,#fbe3f4,#fbe3f4 12px,#f7d4ec 12px,#f7d4ec 24px);
+  color:var(--pink-d);font:12px "Silkscreen",monospace;text-align:center;padding:10px}
+.pol p{font:700 24px/1.2 "Comic Sans MS","Comic Sans","Patrick Hand",cursive;text-align:center;margin:8px 0 4px;color:var(--plum)}
+.videos{display:grid;grid-template-columns:repeat(2,minmax(0,340px));justify-content:center;gap:clamp(10px,3vw,22px)}
+.vid{border-radius:14px;overflow:hidden;background:#000;box-shadow:0 12px 30px #5b1e5233}
+.vid iframe,.vid video,.vid .ph{width:100%;aspect-ratio:9/16;border:0;display:block;object-fit:cover}
+.end{text-align:center;margin-top:56px}
+.end .big{font-size:64px;animation:beat 1.2s ease-in-out infinite;display:inline-block}
+@keyframes beat{15%,45%{transform:scale(1.18)}30%{transform:scale(1)}}
+.end p{font:700 clamp(32px,6vw,44px)/1.2 "Comic Sans MS","Comic Sans","Patrick Hand",cursive;color:var(--plum);margin:6px 0}
+.small{font:12px "Silkscreen",monospace;background:none;border:2px solid var(--pink-d);color:var(--pink-d);padding:10px 16px;border-radius:10px;cursor:pointer;margin-top:24px;min-height:44px}
+#music{position:fixed;right:16px;bottom:16px;z-index:20;background:var(--pink);color:#fff;border:3px solid var(--line);
+  border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:3px 3px 0 var(--line)}
+.float{position:fixed;bottom:-50px;z-index:5;pointer-events:none;animation:up linear forwards}
+@keyframes up{to{transform:translateY(-115vh) rotate(var(--rot))}}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+/* ---------- birthday cake ---------- */
+.cake-box{text-align:center;margin:44px 0 8px}
+#cake{width:min(340px,92%);height:auto;overflow:visible;display:block;margin:0 auto}
+.candle{cursor:pointer}
+.flame{transform-box:fill-box;transform-origin:50% 100%;animation:flick .22s ease-in-out infinite alternate}
+@keyframes flick{to{transform:scale(.88,1.1) rotate(3deg)}}
+.glow{transition:opacity .3s}
+.out .flame,.out .glow{opacity:0;animation:none;transition:opacity .2s}
+.smoke{opacity:0;transform-box:fill-box;transform-origin:50% 100%}
+.out .smoke{animation:smoke 1.4s ease-out forwards}
+@keyframes smoke{0%{opacity:.6;transform:none}100%{opacity:0;transform:translateY(-34px) scale(2.2)}}
+#cake.done{animation:hop .6s ease}
+@keyframes hop{40%{transform:translateY(-10px)}}
+#cakeMsg{font:700 26px/1.3 "Comic Sans MS","Comic Sans","Patrick Hand",cursive;color:var(--plum);margin:10px 0 4px;min-height:1.3em}
+.cake-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+/* ---------- fake loading screen ---------- */
+#loading{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:16px;
+  background:radial-gradient(circle at 85% 10%,#fcebd9 0,transparent 45%),linear-gradient(160deg,#f7e1ef,#f3e6f6 60%,#f8e3ee)}
+.lwin{width:min(460px,100%)}
+#ltext{font:15px/1.5 "Silkscreen","Be Vietnam Pro",monospace;color:var(--plum);text-align:center;margin:30px 16px 16px;min-height:3em}
+.track{height:30px;border:3px solid var(--line);border-radius:8px;margin:0 20px;background:#fff;padding:3px}
+#lfill{height:100%;width:0;border-radius:3px;background:repeating-linear-gradient(90deg,var(--pink) 0 14px,#f3a6e3 14px 18px);transition:width .7s ease}
+#lpct{font:24px "Silkscreen",monospace;color:var(--pink-d);text-align:center;margin:14px 0 0}
+#loading.err #ltext,#loading.err #lpct{color:#d62f6b}
+#loading.err #lfill{background:#ff4d79}
+#loading.err .lwin{animation:shake .5s}
+@keyframes shake{20%,60%{transform:translateX(-10px) rotate(-1deg)}40%,80%{transform:translateX(10px) rotate(1deg)}}
+/* ---------- reacting cat ---------- */
+.cat .fs,.cat .fh,.cat .hearts{display:none}
+.cat.sad .fn,.cat.happy .fn{display:none}
+.cat.sad .fs,.cat.happy .fh,.cat.happy .hearts{display:inline}
+.cat.sad{animation:sulk 1.4s ease-in-out infinite}
+@keyframes sulk{0%,100%{transform:translateY(4px) rotate(3deg)}50%{transform:translateY(6px) rotate(-3deg)}}
+.cat.happy{animation:wiggle .5s ease-in-out infinite alternate}
+@keyframes wiggle{from{transform:rotate(-6deg)}to{transform:rotate(6deg) translateY(-4px)}}
+.cat.jump{animation:jump .9s cubic-bezier(.3,1.5,.5,1)}
+@keyframes jump{0%{transform:scale(1.1,.85)}35%{transform:translateY(-38px) scale(.95,1.1) rotate(-8deg)}70%{transform:translateY(0) scale(1.08,.9)}100%{transform:none}}
+.tear{animation:tear 1.1s ease-in infinite}
+.tear+.tear{animation-delay:.55s}
+@keyframes tear{0%{transform:translateY(0);opacity:1}100%{transform:translateY(16px);opacity:0}}
+.hearts path{transform-box:fill-box;transform-origin:center;animation:pop 1s ease-out infinite}
+.hearts path:nth-child(2){animation-delay:.35s}.hearts path:nth-child(3){animation-delay:.7s}
+@keyframes pop{0%{transform:scale(.3);opacity:0}30%{opacity:1}100%{transform:translateY(-14px) scale(1.1);opacity:0}}
+/* ---------- secret easter egg ---------- */
+.end .big{cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.end .big.tap{animation:tapbump .25s ease}
+@keyframes tapbump{50%{transform:scale(1.45) rotate(-8deg)}}
+#secret{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:#5b1e5266;animation:fadein .3s ease}
+.swin{width:min(440px,100%);text-align:center;animation:popin .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes popin{from{transform:scale(.4);opacity:0}}
+.swin .lbl{font:13px "Silkscreen",monospace;color:var(--pink-d);letter-spacing:.12em;margin:22px 0 4px}
+#secretText{font:700 30px/1.35 "Comic Sans MS","Comic Sans","Patrick Hand",cursive;color:var(--plum);margin:8px 20px 4px;white-space:pre-line;overflow-wrap:anywhere}
+#secretImg{display:block;width:calc(100% - 40px);max-height:55vh;object-fit:contain;margin:14px auto 0;border-radius:8px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ============ SCREEN 1 ============ -->
+<main id="ask">
+  <div style="width:min(560px,100%)">
+    <div class="win">
+      <div class="bar"><span class="dot" style="background:#ff7aa8"></span><span class="dot" style="background:#ffd166"></span><span class="dot" style="background:#7ad3ff"></span></div>
+      <svg class="cat" id="cat" viewBox="0 0 120 140" aria-hidden="true" overflow="visible">
+        <g fill="#fff" stroke="#231b22" stroke-width="4" stroke-linejoin="round">
+          <path d="M34 128c-8-20-6-48 8-60h36c14 12 16 40 8 60z"/>
+          <path d="M22 54 26 14l26 20h16l26-20 4 40c0 22-18 34-40 34S22 76 22 54z"/>
+          <path d="M84 96c14-6 20-20 16-34" fill="none"/>
+          <path d="M96 66c6-10 14-10 16-4s-6 10-12 8z"/>
+        </g>
+        <g class="fn">
+          <path d="M42 52q6-6 12 0M66 52q6-6 12 0" fill="none" stroke="#231b22" stroke-width="4" stroke-linecap="round"/>
+          <path d="M56 62q4 5 8 0" fill="none" stroke="#231b22" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <g class="fs">
+          <path d="M40 48l12 -5M80 48l-12 -5" stroke="#231b22" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="47" cy="55" r="3.5" fill="#231b22"/><circle cx="73" cy="55" r="3.5" fill="#231b22"/>
+          <path d="M53 68q7-7 14 0" fill="none" stroke="#231b22" stroke-width="3" stroke-linecap="round"/>
+          <path class="tear" d="M45 60q-3 5 0 7q3-2 0-7z" fill="#7ad3ff"/>
+          <path class="tear" d="M75 60q-3 5 0 7q3-2 0-7z" fill="#7ad3ff"/>
+        </g>
+        <g class="fh">
+          <path d="M42 48l10 5-10 5M78 48l-10 5 10 5" fill="none" stroke="#231b22" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M53 60h14q0 11-7 11t-7-11z" fill="#ff7aa8" stroke="#231b22" stroke-width="3" stroke-linejoin="round"/>
+        </g>
+        <g class="hearts" fill="#ff5c9a">
+          <path d="M8 30c-4-6 4-10 6-4c2-6 10-2 6 4l-6 6z"/>
+          <path d="M104 22c-4-6 4-10 6-4c2-6 10-2 6 4l-6 6z"/>
+          <path d="M98 0c-3-4 3-7 4-3c1-4 7-1 4 3l-4 4z"/>
+        </g>
+        <ellipse cx="38" cy="64" rx="7" ry="4" fill="#f9a8d4"/><ellipse cx="82" cy="64" rx="7" ry="4" fill="#f9a8d4"/>
+      </svg>
+      <p class="q" id="question"></p>
+      <div id="zone">
+        <button class="btn" id="yes">♥ YES!</button>
+        <button class="btn" id="no"></button>
+      </div>
+      <p id="hint"></p>
+    </div>
+  </div>
+</main>
+
+<!-- ============ FAKE LOADING ============ -->
+<div id="loading" class="hidden">
+  <div class="win lwin">
+    <div class="bar"><span class="dot" style="background:#ff7aa8"></span><span class="dot" style="background:#ffd166"></span><span class="dot" style="background:#7ad3ff"></span></div>
+    <p id="ltext"></p>
+    <div class="track"><div id="lfill"></div></div>
+    <p id="lpct">0%</p>
+  </div>
+</div>
+
+<!-- ============ SCREEN 2 ============ -->
+<section id="wish" class="hidden">
+  <div class="wrap">
+    <div class="emojis" id="e1"></div>
+    <h1 id="title"></h1>
+    <div class="emojis" id="e2"></div>
+    <div class="letter"><span class="hi" id="greet"></span><span id="msg"></span></div>
+    <div class="cake-box">
+      <h2 id="cakeTitle" style="margin-top:0"></h2>
+      <svg id="cake" viewBox="0 0 300 270" role="img" aria-label="Birthday cake with candles"></svg>
+      <p id="cakeMsg"></p>
+      <div class="cake-btns"><button class="small" id="blowAll">🌬️ thổiii</button><button class="small hidden" id="relight">🕯️ lại nàooo</button></div>
+    </div>
+    <h2 id="photoTitle"></h2>
+    <div class="photos" id="photos"></div>
+    <h2 id="videoTitle"></h2>
+    <div class="videos" id="videos"></div>
+    <div class="end">
+      <div class="big">💖</div>
+      <p id="sign"></p>
+      <button class="small" id="again">↺ lại nào babiii</button>
+    </div>
+  </div>
+</section>
+<!-- ============ SECRET ============ -->
+<div id="secret" class="hidden" role="dialog" aria-modal="true" aria-label="Secret message">
+  <div class="win swin">
+    <div class="bar"><span class="dot" style="background:#ff7aa8"></span><span class="dot" style="background:#ffd166"></span><span class="dot" style="background:#7ad3ff"></span></div>
+    <p class="lbl">🔓 SECRET UNLOCKED</p>
+    <p id="secretText"></p>
+    <img id="secretImg" class="hidden" alt="">
+    <button class="small" id="secretClose">♥ quất luông</button>
+  </div>
+</div>
+<button id="music" class="hidden" aria-label="Play music">♫</button>
+<canvas id="fx"></canvas>
+
+<script>
+/* =====================================================================
+   ✏️  EDIT EVERYTHING HERE — you don't need to touch anything below.
+   Put your pictures in a folder called "photos" and videos in "videos",
+   next to this index.html file.
+   ===================================================================== */
+const CONFIG = {
+  question: "em có thíc nhận quà từ anh hem?",
+  yesText: "♥ CÓAAA!",
+  // The "NO" button says these, one after another, as it runs away and shrinks.
+  noTexts: ["hong", "em chắc chưa?", "for riel bro??", "cho em nghĩ lại 🥺", "gg", "cơ hội cuối", "ok không."],
+  hints:   ["hmm, that button seems shy", "it's getting smaller...", "it really doesn't want to be clicked", "almost gone...", "just press yes 🥺", "one more...", ""],
+  finalHint: "guess there's only one answer now 💗",
+
+  // ----- fake loading screen after she presses yes -----
+  loadingSteps: [
+    { pct: 18, text: "loading love..." },
+    { pct: 46, text: "loading hugs & kisses..." },
+    { pct: 87, text: "loading cuteness of u..." },
+    { pct: 99, text: "almost there..." },
+  ],
+  loadingError: "error: too much love 💥",
+
+  // ----- the wish page -----
+  emojisTop:    "🥳 😘 💝 🌷 🏆 🥇 😻 ❤️ 💘 💖 🎉 🔥 💯 🎊 💪 🔥 🎂 💐",
+  title:        "CHÚC MỪNG SINH NHẬT 21 CHỦI CỦA EM BÉ TUYỆT VỜI XINH ĐẸP GIỎI GIANG NHẤT TRÊN QUẢ ĐẤT NÀYYYYYYYY",
+  emojisBottom: "🎉 🎊 💯 💖 💘 😻 🎂 🍭 🍰 🥂 🍾 🎁 🎆 💖 🎈 🥝 🌟 🌞",
+  greeting:     "Xin chào em bé yeobo iu dấu cụa anhhhhhhh",
+  // Write your letter here. Line breaks are kept. Vietnamese works fine.
+  message: `Happy birthday babi cưng cụa anhhhh. Anh mong là em sẽ thích món quà này từ anh hehehehehehe :>>>
+
+Anh chúc em có một ngày sinh nhật thật vui vẻ, hạnh phúc, ấm áp, suôn sẻ, thoải mái và tràn ngập niềm vui tiếng cười nhó cưng oiiiii. 
+
+Anh chúc công chúa cụa anh thêm tuổi mới sẽ giỏi giang kiên cường mạnh mẽ hơn nữa nhóooo. Anh chúc em sẽ gặp nhiều may mắn và niềm vui trong cuộc sống lẫn công việc học tập và các mối quan hệ. Anh chúc babi của anh sẽ càng ngày càng trưởng thành cứng rắn hơn và luôn theo đuổi con đường mình muốn đi nhóooo babiii. Chái yooooooo chái yooooooo my babiii 💪💪💪
+
+HAPPY BIRTHDAY MY SUPER DUPER BEST GREAT ULTRA PRO MAX PLUS MULTIPLY MEGA WONDERFUL BABIIIII 🥳🥳🥳😻😻😻😽😽😽😘😘😘😍😍😍🫂🫂🫂❤️❤️❤️🩷🩷🩷❤️‍🔥❤️‍🔥❤️‍🔥🩵🩵🩵🧡🧡🧡🤍🤍🤍💞💞💞💕💕💕💗💗💗💖💖💖💝💝💝❣️❣️❣️💓💓💓💟💟💟💌💌💌🌟🌟🌟🔥🔥🔥⚡⚡⚡🌞🌞🌞`,
+  signoff:      "I love u so muchhh — mthien <3",
+
+  // ----- the birthday cake -----
+  cakeTitle:   "babiii ước iiiiiiiii 🎂",
+  cakeCandles: 9,                                   // 1 to 12
+  cakeHint:    "em nhắm mắt lại, ước một điều, rồi bấm vào nến nhóoo",
+  cakeDone:    "yayyy!!! điều ước của babi sẽ thành sự thậtttt 🎉",
+
+  photoTitle: "hí hí 📸",
+  // src = file inside the photos folder. Add or remove lines freely.
+  photos: [
+    { src: "photos/H.JPG", caption: "" },
+    { src: "photos/P.JPG", caption: "" },
+    { src: "photos/B.JPG", caption: "" },
+    { src: "photos/D.JPG", caption: "" },
+    { src: "photos/B.JPG", caption: "" },
+    { src: "photos/A.JPG", caption: "" },
+    { src: "photos/B.JPG", caption: "" },
+    { src: "photos/I.JPG", caption: "" },
+    { src: "photos/Heart.JPG", caption: "" },
+
+  ],
+
+  videoTitle: "hé hé 🎬",
+  // Two kinds:  { file: "videos/1.mp4" }   or   { youtube: "VIDEO_ID" }
+  // (the YouTube id is the part after "watch?v=" in the link)
+  videos: [
+    { file: "videos/1.mp4" },
+    { file: "videos/2.mp4" },
+  ],
+
+  // ----- secret easter egg: tap the big 💖 at the bottom this many times -----
+  secretTaps:    10,
+  secretMessage: "babi giỏi dữ ta, tìm ra được bí mật của anh luông :> em sẽ được thưởng 10 ngày 10 đêm thị tẩm theo ý muốn của mình 😛",
+  secretPhoto:   "",   // optional, e.g. "photos/secret.jpg"
+
+  music: "",   // optional, e.g. "music/song.mp3" — a ♫ button appears to play it
+  floaters: ["💖","💗","💕","🌷","✨","🎈","🥰","🎀","🎂"],
+};
+/* ===================================================================== */
+
+{
+const $ = s => document.querySelector(s);
+const C = CONFIG;
+const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+// ---- fill screen 1 ----
+$("#question").textContent = C.question;
+$("#yes").textContent = C.yesText;
+const yes = $("#yes"), no = $("#no"), zone = $("#zone"), hint = $("#hint");
+no.textContent = C.noTexts[0];
+hint.textContent = C.hints[0];
+
+let tries = 0;
+const MAX = C.noTexts.length;
+const hits = (x, y, w, h, r) => !(x + w + 12 < r.left || x - 12 > r.right || y + h + 12 < r.top || y - 12 > r.bottom);
+
+function dodge(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  if (!no.isConnected) return;
+  tries++;
+  yes.style.setProperty("--g", 1 + tries * 0.09);
+  if (tries >= MAX) {
+    no.classList.add("gone");
+    hint.textContent = C.finalHint;
+    setTimeout(() => no.remove(), 450);
+    return;
+  }
+  const z = zone.getBoundingClientRect();
+  if (!no.classList.contains("free")) {
+    const r = no.getBoundingClientRect();
+    no.style.left = (r.left - z.left) + "px";
+    no.style.top = (r.top - z.top) + "px";
+    no.classList.add("free");
+    void no.offsetWidth;
+  }
+  const s = Math.max(0.35, 1 - tries * 0.12);
+  no.textContent = C.noTexts[tries];
+  no.style.setProperty("--s", s);
+  hint.textContent = C.hints[tries] || "";
+  const w = no.offsetWidth * s, h = no.offsetHeight * s;
+  const yr = yes.getBoundingClientRect();
+  let x, y, k = 0;
+  do {
+    x = Math.random() * Math.max(0, z.width - w);
+    y = Math.random() * Math.max(0, z.height - h);
+  } while (++k < 40 && hits(x + z.left, y + z.top, w, h, yr));
+  no.style.left = x + "px";
+  no.style.top = y + "px";
+}
+// ---- reacting cat ----
+const cat = $("#cat");
+let catTimer = null, catLocked = false;
+function mood(m, ms) {
+  if (catLocked) return;
+  clearTimeout(catTimer);
+  cat.classList.remove("sad", "happy");
+  if (m) cat.classList.add(m);
+  catTimer = ms ? setTimeout(() => mood(""), ms) : null;
+}
+addEventListener("mousemove", e => {
+  if (catLocked || !no.isConnected) return;
+  const r = no.getBoundingClientRect();
+  const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
+  if (d < 140) mood("sad");
+  else if (cat.classList.contains("sad") && !catTimer) mood("");
+});
+yes.addEventListener("pointerenter", () => mood("happy"));
+yes.addEventListener("pointerleave", () => mood(""));
+const _dodge = dodge;
+dodge = function (e) { _dodge(e); if (!no.classList.contains("gone")) mood("sad", 1300); else mood(""); };
+
+no.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") dodge(); });
+no.addEventListener("touchstart", dodge, { passive: false });
+no.addEventListener("click", dodge);
+
+// ---- fill screen 2 ----
+$("#e1").textContent = C.emojisTop;
+$("#title").textContent = C.title;
+$("#e2").textContent = C.emojisBottom;
+$("#greet").textContent = C.greeting;
+$("#msg").textContent = C.message;
+$("#sign").textContent = C.signoff;
+$("#photoTitle").textContent = C.photos.length ? C.photoTitle : "";
+$("#videoTitle").textContent = C.videos.length ? C.videoTitle : "";
+
+const ph = label => `<div class="ph">${esc(label)}</div>`;
+$("#photos").innerHTML = C.photos.map((p, i) =>
+  `<figure class="pol" style="--r:${[-3, 2, -1.5, 3, -2.5, 1.5][i % 6]}deg;margin:0">
+     <img src="${esc(p.src)}" alt="${esc(p.caption || "")}" loading="lazy">
+     <p>${esc(p.caption || "")}</p></figure>`).join("");
+$("#photos").querySelectorAll("img").forEach(img =>
+  img.addEventListener("error", () => img.outerHTML = ph("photo goes here: " + img.getAttribute("src"))));
+
+$("#videos").innerHTML = C.videos.map(v => v.youtube
+  ? `<div class="vid"><iframe src="https://www.youtube.com/embed/${esc(v.youtube)}" title="video" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe></div>`
+  : `<div class="vid"><video src="${esc(v.file)}" controls playsinline preload="metadata"></video></div>`).join("");
+$("#videos").querySelectorAll("video").forEach(vd =>
+  vd.addEventListener("error", () => vd.outerHTML = ph("video goes here: " + vd.getAttribute("src"))));
+
+// ---- music ----
+let audio = null;
+if (C.music) {
+  audio = new Audio(C.music); audio.loop = true;
+  const m = $("#music");
+  m.addEventListener("click", () => {
+    if (audio.paused) { audio.play().catch(() => {}); m.textContent = "❚❚"; }
+    else { audio.pause(); m.textContent = "♫"; }
+  });
+}
+
+// ---- floating emojis ----
+let floatTimer = null;
+function floatOne() {
+  const f = document.createElement("span");
+  f.className = "float";
+  f.textContent = C.floaters[Math.floor(Math.random() * C.floaters.length)];
+  f.style.left = Math.random() * 96 + "vw";
+  f.style.fontSize = 18 + Math.random() * 22 + "px";
+  f.style.setProperty("--rot", (Math.random() * 80 - 40) + "deg");
+  f.style.animationDuration = 6 + Math.random() * 5 + "s";
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 11500);
+}
+
+// ---- confetti ----
+const cv = $("#fx"), cx = cv.getContext("2d");
+function confetti() {
+  if (calm) return;
+  cv.width = innerWidth; cv.height = innerHeight;
+  const cols = ["#e57bd3", "#ffd166", "#7ad3ff", "#ff7aa8", "#b78bff", "#fff"];
+  const ps = Array.from({ length: 200 }, () => ({
+    x: cv.width / 2, y: cv.height * 0.35,
+    vx: (Math.random() - 0.5) * 16, vy: -Math.random() * 16 - 4,
+    s: 5 + Math.random() * 6, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3,
+    c: cols[Math.floor(Math.random() * cols.length)]
+  }));
+  let t = 0;
+  (function frame() {
+    cx.clearRect(0, 0, cv.width, cv.height);
+    ps.forEach(p => {
+      p.vy += 0.35; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r);
+      cx.fillStyle = p.c; cx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); cx.restore();
+    });
+    if (++t < 240) requestAnimationFrame(frame); else cx.clearRect(0, 0, cv.width, cv.height);
+  })();
+}
+
+// ---- birthday cake ----
+{
+  const svg = $("#cake"), msg = $("#cakeMsg");
+  const N = Math.max(1, Math.min(12, C.cakeCandles || 5));
+  const scallops = (x, y, w, n, h) => { const d = w / n; let p = `M${x} ${y}`; for (let i = 0; i < n; i++) p += ` q${d/2} ${h} ${d} 0`; return p; };
+  const sprinkleCols = ["#ff7aa8", "#7ad3ff", "#ffd166", "#b78bff", "#7be0b0"];
+  let sprinkles = "";
+  for (let i = 0; i < 26; i++) {
+    const top = i < 10, x = top ? 88 + (i * 37) % 124 : 52 + (i * 53) % 196, y = top ? 132 + (i * 7) % 26 : 196 + (i * 11) % 40;
+    sprinkles += `<rect x="${x}" y="${y}" width="9" height="3" rx="1.5" fill="${sprinkleCols[i % 5]}" transform="rotate(${(i * 47) % 180} ${x + 4} ${y + 1})"/>`;
+  }
+  const gap = 130 / N;
+  let candles = "";
+  for (let i = 0; i < N; i++) {
+    const cx = 85 + gap * (i + 0.5);
+    candles += `<g class="candle" data-i="${i}">
+      <rect x="${cx - 16}" y="30" width="32" height="80" fill="transparent"/>
+      <ellipse class="glow" cx="${cx}" cy="56" rx="16" ry="20" fill="#ffd166" opacity=".35"/>
+      <rect x="${cx - 4}" y="72" width="8" height="34" rx="2" fill="#fff" stroke="#e57bd3" stroke-width="1.5"/>
+      <path d="M${cx - 4} 80 l8 -4 M${cx - 4} 89 l8 -4 M${cx - 4} 98 l8 -4" stroke="#e57bd3" stroke-width="2"/>
+      <line x1="${cx}" y1="72" x2="${cx}" y2="66" stroke="#3b2b45" stroke-width="1.5"/>
+      <path class="flame" d="M${cx} 44 C${cx + 7} 54 ${cx + 6} 66 ${cx} 66 C${cx - 6} 66 ${cx - 7} 54 ${cx} 44Z" fill="#ffb02e"/>
+      <path class="flame" d="M${cx} 53 C${cx + 3} 58 ${cx + 3} 64 ${cx} 64 C${cx - 3} 64 ${cx - 3} 58 ${cx} 53Z" fill="#fff3b0"/>
+      <circle class="smoke" cx="${cx}" cy="60" r="4" fill="#bdb5c4"/>
+    </g>`;
+  }
+  svg.innerHTML = `
+    <ellipse cx="150" cy="252" rx="138" ry="16" fill="#fff" stroke="#e9c6e0" stroke-width="3"/>
+    <rect x="36" y="168" width="228" height="80" rx="12" fill="#f39fcd"/>
+    <path d="${scallops(36, 168, 228, 12, 16)} V168 Z" fill="#fff4e8"/>
+    <rect x="36" y="160" width="228" height="10" rx="5" fill="#fff4e8"/>
+    <rect x="78" y="106" width="144" height="62" rx="10" fill="#fff4e8"/>
+    <path d="${scallops(78, 112, 144, 8, 14)} V106 H78 Z" fill="#c98ae0"/>
+    <rect x="78" y="104" width="144" height="10" rx="5" fill="#c98ae0"/>
+    <path d="M36 234 h228" stroke="#e57bd3" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"/>
+    ${sprinkles}${candles}`;
+  const all = () => [...svg.querySelectorAll(".candle")];
+  function check() {
+    if (all().every(c => c.classList.contains("out"))) {
+      msg.textContent = C.cakeDone;
+      svg.classList.remove("done"); void svg.offsetWidth; svg.classList.add("done");
+      $("#blowAll").classList.add("hidden"); $("#relight").classList.remove("hidden");
+      confetti();
+    }
+  }
+  function blow(c) { if (c.classList.contains("out")) return; c.classList.add("out"); check(); }
+  function light() {
+    all().forEach(c => c.classList.remove("out"));
+    msg.textContent = C.cakeHint;
+    $("#blowAll").classList.remove("hidden"); $("#relight").classList.add("hidden");
+  }
+  svg.addEventListener("click", e => { const c = e.target.closest(".candle"); if (c) blow(c); });
+  $("#blowAll").addEventListener("click", () => all().forEach((c, i) => setTimeout(() => blow(c), i * 160)));
+  $("#relight").addEventListener("click", light);
+  $("#cakeTitle").textContent = C.cakeTitle;
+  light();
+}
+
+// ---- secret easter egg ----
+{
+  const heart = $(".end .big"), box = $("#secret");
+  let taps = 0, resetTimer = null;
+  $("#secretText").textContent = C.secretMessage;
+  if (C.secretPhoto) { const im = $("#secretImg"); im.src = C.secretPhoto; im.classList.remove("hidden"); }
+  heart.addEventListener("click", () => {
+    heart.classList.remove("tap"); void heart.offsetWidth; heart.classList.add("tap");
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(() => taps = 0, 3000);   // taps must be close together
+    if (++taps >= (C.secretTaps || 10)) {
+      taps = 0;
+      box.classList.remove("hidden");
+      confetti();
+    }
+  });
+  const close = () => box.classList.add("hidden");
+  $("#secretClose").addEventListener("click", close);
+  box.addEventListener("click", e => { if (e.target === box) close(); });
+  addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+}
+
+// ---- switching screens ----
+function show(name) {
+  const wishOn = name === "wish";
+  $("#loading").classList.add("hidden");
+  loadingRun = false;
+  $("#ask").classList.toggle("hidden", wishOn);
+  $("#wish").classList.toggle("hidden", !wishOn);
+  if (audio) $("#music").classList.toggle("hidden", !wishOn);
+  clearInterval(floatTimer);
+  if (wishOn) {
+    scrollTo(0, 0);
+    confetti();
+    if (!calm) floatTimer = setInterval(floatOne, 550);
+  }
+}
+let loadingRun = false;
+yes.addEventListener("click", () => {
+  if (audio) { audio.play().then(() => $("#music").textContent = "❚❚").catch(() => {}); }
+  if (loadingRun) return;
+  loadingRun = true;
+  mood("happy"); catLocked = true;
+  cat.classList.remove("jump"); void cat.offsetWidth; cat.classList.add("jump");
+  const L = $("#loading"), steps = C.loadingSteps || [];
+  setTimeout(() => {
+    L.classList.remove("hidden", "err");
+    $("#lfill").style.width = "0%"; $("#lpct").textContent = "0%";
+  }, 1000);
+  let t = 1300;
+  steps.forEach((st, i) => {
+    setTimeout(() => {
+      $("#ltext").textContent = st.text;
+      $("#lfill").style.width = st.pct + "%";
+      $("#lpct").textContent = st.pct + "%";
+    }, t);
+    t += i === steps.length - 1 ? 2000 : 900;      // stalls at the last step
+  });
+  setTimeout(() => {
+    L.classList.add("err");
+    $("#ltext").textContent = C.loadingError;
+    $("#lfill").style.width = "100%";
+    $("#lpct").textContent = "999%";
+  }, t);
+  setTimeout(() => { location.hash = "wish"; }, t + 1900);
+});
+$("#again").addEventListener("click", () => { location.hash = ""; location.reload(); });
+addEventListener("hashchange", () => show(location.hash === "#wish" ? "wish" : "ask"));
+show(location.hash === "#wish" ? "wish" : "ask");
+}
+</script>
+</body>
+</html>
